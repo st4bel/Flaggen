@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        DS_Flaggenscript
 // @namespace   de.die-staemme
-// @version     0.1
+// @version     0.2
 // @description Dieses Script setzt mit einem Klick alle möglichen Flaggen.
 // @grant       GM_getValue
 // @grant       GM_setValue
@@ -99,9 +99,9 @@ $(function(){
         .append($("<td>").attr("id","flag_run"))
         .appendTo(settingsTable);
 
-        $("<table>")
-        .appendTo($("#flag_select"))
-        .attr("id","flag_select_table")
+
+
+
 
         var select_flag = $("<select>")
 		.append($("<option>").text("Auswählen").attr("value","0"))
@@ -135,6 +135,13 @@ $(function(){
             }
         });
 
+        var select_group = $("<select>")
+        .append($("<option>").text("Aktuelle").val("-1"))
+        .attr("id","group_select")
+        .change(function(){
+            //TODO
+        });
+
 
         for(var name in flaggenauswahl){
 			select_flag.append($("<option>").text(name).attr("value",flaggenauswahl[name]));
@@ -157,9 +164,23 @@ $(function(){
 
         //$("#flag_select").append(select_flag).append(button_insert).append(button_remove).append(input_flag_lvl_border);
 
-        addRowtoSelectFlags($("<span>").text("Flagge: "),select_flag);
-        addRowtoSelectFlags($("<div>").append($("<span>").text("Flaggen ")).append(select_asc_desc).append($("<span>").text(" verwenden bis einschließlich Stufe")),
-        input_flag_lvl_border);
+        $("<table>")
+        .appendTo($("#flag_select"))
+        .attr("id","flag_select_table")
+
+        $("<tr>").appendTo($("#flag_select_table"))
+        .append($("<th>").text("Flagge"))
+        .append($("<th>").text("asc/desc"))
+        .append($("<th>").text("Grenzstufe"))
+        .append($("<th>").text("Gruppe"))
+        .append($("<th>").text("Weitere Aktionen"));
+
+        $("<tr>").appendTo($("#flag_select_table"))
+        .append($("<td>").append(select_flag))
+        .append($("<td>").append(select_asc_desc))
+        .append($("<td>").append(input_flag_lvl_border))
+        //.append($("<td>").append(/*TODO*/))
+        .append($("<td>").append(button_insert));
 
         function addRowtoSelectFlags(obj1,obj2){
             $("<tr>")
@@ -167,6 +188,11 @@ $(function(){
             .append(obj2)
             .appendTo($("#flag_select_table"));
         }
+    }
+
+    function checkGroup(){
+        //überprüft ob alle evtl früher eingelesenen GRuppen (localStorage) im
+
     }
 
 
