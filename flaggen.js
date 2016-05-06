@@ -192,6 +192,23 @@ $(function(){
 
     function checkGroup(){
         //überprüft ob alle evtl früher eingelesenen GRuppen (localStorage) im
+        var div_groups = $("div.vis_item",$("#paged_view_content")).eq(0);
+        var
+        $("a",div_groups).each(function(){
+
+        })
+
+
+        var groups = {};
+        villageDock.open(event);
+        setTimeout(function(){
+            $("option",$("#group_id")).each(function(){
+                groups[$(this).val()] = $(this).text();
+            });
+            villageDock.close(event);
+        },100);
+        var stgroups = JSON.parse(storageGet("groups"))
+
 
     }
 
