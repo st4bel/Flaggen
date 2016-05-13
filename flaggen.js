@@ -22,6 +22,7 @@
  var flaggenauswahl = {"Rohstoffproduktion":1,"Rekrutierungs-Geschwindigkeit":2,"Angriffsstärke":3,"Verteidigungsstärke":4,"Glück":5,"Reduzierte Münzkosten":6,"Beutekapazität":7};
  var current_flags;
 $(function(){
+
 	var storage = localStorage;
     var storagePrefix="Flaggen_";
     //Speicherfunktionen
@@ -32,8 +33,16 @@ $(function(){
     function storageSet(key,val) {
         storage.setItem(storagePrefix+key,val);
     }
+    function glstorageGet(key,defaultValue){
+        var value= storage.getItem("dskalation_"+key);
+        return (value === undefined || value === null) ? defaultValue : value;
+    }
+    function glstorageSet(key,val) {
+        storage.setItem("dskalation_"+key,val);
+    }
 	storageSet("flag",storageGet("flag",0));
     storageSet("asc_desc",storageGet("asc_desc","asc"));
+    glstorageSet("groups",glstorageGet("groups",JSON.stringify({0:"alle"})));
 
     var mode 	= $(".selected",$(".modemenu"));
 	if($("a",mode).eq(0).text().indexOf("Forschung")!=-1){
@@ -102,6 +111,13 @@ $(function(){
 
 
 
+        var button_update_groups = $("<button>")
+        .appendTo(settingsTable)
+        .click(function(){
+            getGroup();
+        })
+        .text("reload groups");
+
 
         var select_flag = $("<select>")
 		.append($("<option>").text("Auswählen").attr("value","0"))
@@ -126,7 +142,8 @@ $(function(){
 
         var input_flag_lvl_border = $("<input>")
         .attr("type","text")
-        .val("")
+        .attr("size",2)
+        .val("9")
         .on("input",function(){
             if(parseInt($(this).val())>0){
                 //TODO do something
@@ -136,11 +153,39 @@ $(function(){
         });
 
         var select_group = $("<select>")
-        .append($("<option>").text("Aktuelle").val("-1"))
+        //.append($("<option>").text("Aktuelle").val("-1"))
         .attr("id","group_select")
         .change(function(){
-            //TODO
+
         });
+        var st_groups = JSON.parse(glstorageGet("groups"));
+
+
+            //prüfe welche aktuelle gruppe
+            var group_div = $("div.vis_item",$("#paged_view_content")).eq(0);
+            var current_group_name = $("strong",group_div).eq(0).text();
+            var current_group_id;
+            current_group_name = current_group_name.substring(1,current_group_name.length-2);
+            console.log("aktuelle Gruppe: "+current_group_name)
+            console.log(JSON.stringify(st_groups))
+            var vorhanden = false;
+            for(var id in st_groups){
+                $("<option>").appendTo(select_group).val(id).text(st_groups[id]);
+                if(st_groups[id]==current_group_name){
+                    current_group_id = id;
+                    vorhanden = true;
+                    console.log("mkay")
+                }
+            }
+            if(!vorhanden){
+                getGroup();
+                setTimeout(function(){
+                    //neuladen..
+                    document.location.href = document.location.search;
+                    console.log("neuladen")
+                },500);
+            }
+
 
 
         for(var name in flaggenauswahl){
@@ -166,7 +211,7 @@ $(function(){
 
         $("<table>")
         .appendTo($("#flag_select"))
-        .attr("id","flag_select_table")
+        .attr("id","flag_select_table");
 
         $("<tr>").appendTo($("#flag_select_table"))
         .append($("<th>").text("Flagge"))
@@ -179,8 +224,29 @@ $(function(){
         .append($("<td>").append(select_flag))
         .append($("<td>").append(select_asc_desc))
         .append($("<td>").append(input_flag_lvl_border))
-        //.append($("<td>").append(/*TODO*/))
+        .append($("<td>").append(select_group))
         .append($("<td>").append(button_insert));
+
+
+        $("<table>")
+        .appendTo($("#flag_run"))
+        .attr("id","flag_order_table");
+
+        $("<tr>").appendTo($("#flag_order_table"))
+        .append($("<th>").text("Flagge"))
+        .append($("<th>").text("asc/desc"))
+        .append($("<th>").text("Grenzstufe"))
+        .append($("<th>").text("Gruppe"))
+        .append($("<th>").text("Weitere Aktionen"));
+
+        function addOrder(order){
+            var table = $("#flag_order_table");
+            
+        }
+
+
+
+        $('option[value="'+current_group_id+'"]',$("#group_select")).eq(0).prop('selected', true);
 
         function addRowtoSelectFlags(obj1,obj2){
             $("<tr>")
@@ -189,30 +255,19 @@ $(function(){
             .appendTo($("#flag_select_table"));
         }
     }
-
-    function checkGroup(){
-        //überprüft ob alle evtl früher eingelesenen GRuppen (localStorage) im
-        var div_groups = $("div.vis_item",$("#paged_view_content")).eq(0);
-        var
-        $("a",div_groups).each(function(){
-
-        })
-
-
+    function getGroup(){
         var groups = {};
         villageDock.open(event);
         setTimeout(function(){
             $("option",$("#group_id")).each(function(){
-                groups[$(this).val()] = $(this).text();
+                if($(this).text()!=""){
+                    groups[$(this).val()] = $(this).text();
+                }
             });
             villageDock.close(event);
+            glstorageSet("groups",JSON.stringify(groups));
         },100);
-        var stgroups = JSON.parse(storageGet("groups"))
-
-
     }
-
-
 	function insert_flags(flag){
 		var table 	= $("#techs_table");
 		var rows 	= $("tr",table).slice(1);
