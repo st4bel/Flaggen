@@ -197,6 +197,16 @@ $(function(){
             insert_flags($("option:selected",select_flag).val());
 
         });
+        var button_add_order  = $("<button>")
+        .text("Auftrag übertragen")
+        .click(function(){
+            var order = {};
+            order.flag      = $("option:selected",select_flag).val();
+            order.ascdesc   = $("option:selected",select_asc_desc).val();
+            order.bound     = input_flag_lvl_border.val();
+            order.group     = $("option:selected",select_group).val();
+            addOrder(order);
+        });
 		if($("option:selected",select_flag).val()==0){
 			button_insert.attr("disabled","disabled")
 
@@ -240,8 +250,10 @@ $(function(){
         .append($("<th>").text("Weitere Aktionen"));
 
         function addOrder(order){
-            var table = $("#flag_order_table");
-            
+            var table   = $("#flag_order_table");
+            var tr      = $("<tr>").appendTo(table);
+
+            $("<td>").appendTo(tr).append($("<span>").text(order.flag));
         }
 
 
