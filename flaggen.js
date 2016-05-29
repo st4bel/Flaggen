@@ -225,8 +225,8 @@ $(function(){
 
         $("<tr>").appendTo($("#flag_select_table"))
         .append($("<th>").text("Flagge"))
-        .append($("<th>").text("asc/desc").title("Zuerst die kleinsten Flaggen benutzen, oder die größten Flaggen?")
-        .append($("<th>").text("Grenzstufe").title("Je nach asc/desc bis einschließlich folgende Stufe verwenden."))
+        .append($("<th>").text("asc/desc").attr("title","Zuerst die kleinsten Flaggen benutzen, oder die größten Flaggen?"))
+        .append($("<th>").text("Grenzstufe").attr("title","Je nach asc/desc bis einschließlich folgende Stufe verwenden."))
         .append($("<th>").text("Gruppe"))
         .append($("<th>").text("Weitere Aktionen"));
 
@@ -301,16 +301,18 @@ $(function(){
 	function insert_flag_in_row(row,flag,current_flags,asc_desc,border){
 		//id des Dorfes in Spalte rausbekommen...
 		var village_id 	= row.attr("id").substring(row.attr("id").indexOf("_")+1,row.attr("id").length);
-		(for(var tier in current_flags[flag]){
+		for(var tier in current_flags[flag]){
             //Verarbeitung: Aufsteigend/Absteigend und Grenzlevel der Flaggen
             if(asc_desc=="asc"){
                 var flag_lvl = tier;
                 if(flag_lvl>border){
+                    console.log("Grenze erreicht!");
                     return;
                 }
             }else{
                 var flag_lvl = 10-tier;
                 if(flag_lvl<border){
+                    console.log("Grenze erreicht!");
                     return;
                 }
             }
@@ -320,7 +322,7 @@ $(function(){
 				console.log("id: "+village_id+" flag: "+flag+" tier: "+tier+" restliche Flaggen: "+current_flags[flag][tier]);
 				return;
 			}
-		})
+		}
 		console.log("keine Flaggen übrig");
 	}
 	/*function getFlags(){
