@@ -132,8 +132,8 @@ $(function(){
 			}
         });
         var select_asc_desc = $("<select>")
-        .append($("<option>").text("Aufsteigend").attr("value","asc"))
-        .append($("<option>").text("Absteigend").attr("desc"))
+        .append($("<option>").text("kleinste zuerst").attr("value","asc"))
+        .append($("<option>").text("größte zuerst").attr("value","desc"))
         .attr("id","asc_desc_select")
         .change(function(){
             storageSet("asc_desc",$("option:selected",select_asc_desc).val());
@@ -194,7 +194,7 @@ $(function(){
 		var button_insert	= $("<button>")
 		.text("Einfügen")
         .click(function(){
-            insert_flags($("option:selected",select_flag).val());
+            insert_flags($("option:selected",select_flag).val(),$("option:selected",select_asc_desc).val(),input_flag_lvl_border.val());
 
         });
         var button_add_order  = $("<button>")
@@ -225,8 +225,8 @@ $(function(){
 
         $("<tr>").appendTo($("#flag_select_table"))
         .append($("<th>").text("Flagge"))
-        .append($("<th>").text("asc/desc"))
-        .append($("<th>").text("Grenzstufe"))
+        .append($("<th>").text("asc/desc").title("Zuerst die kleinsten Flaggen benutzen, oder die größten Flaggen?")
+        .append($("<th>").text("Grenzstufe").title("Je nach asc/desc bis einschließlich folgende Stufe verwenden."))
         .append($("<th>").text("Gruppe"))
         .append($("<th>").text("Weitere Aktionen"));
 
@@ -280,7 +280,7 @@ $(function(){
             glstorageSet("groups",JSON.stringify(groups));
         },100);
     }
-	function insert_flags(flag){
+	function insert_flags(flag,asc_desc,border){
 		var table 	= $("#techs_table");
 		var rows 	= $("tr",table).slice(1);
 		var row;
@@ -291,27 +291,36 @@ $(function(){
 		setTimeout(function(){
 			for(var i = 0; i<rows.length; i++){
 				row	= rows.eq(i);
-				insert_flag_in_row(row,flag,current_flags);
+				insert_flag_in_row(row,flag,current_flags,asc_desc,border);
 			}
 		},3000);
 		//var flag_table = $("#flags_select_"+getPageAttribute("village")+"_content");
 
 
 	}
-	function insert_flag_in_row(row,flag,current_flags){
+	function insert_flag_in_row(row,flag,current_flags,asc_desc,border){
 		//id des Dorfes in Spalte rausbekommen...
-
 		var village_id 	= row.attr("id").substring(row.attr("id").indexOf("_")+1,row.attr("id").length);
-
-
-		for(var tier in current_flags[flag]){
+		(for(var tier in current_flags[flag]){
+            //Verarbeitung: Aufsteigend/Absteigend und Grenzlevel der Flaggen
+            if(asc_desc=="asc"){
+                var flag_lvl = tier;
+                if(flag_lvl>border){
+                    return;
+                }
+            }else{
+                var flag_lvl = 10-tier;
+                if(flag_lvl<border){
+                    return;
+                }
+            }
 			if(current_flags[flag][tier]>0){
 				FlagsOverview.assignFlag(flag, tier, village_id);
 				current_flags[flag][tier]	= current_flags[flag][tier]-1;
 				console.log("id: "+village_id+" flag: "+flag+" tier: "+tier+" restliche Flaggen: "+current_flags[flag][tier]);
 				return;
 			}
-		}
+		})
 		console.log("keine Flaggen übrig");
 	}
 	/*function getFlags(){
