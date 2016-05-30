@@ -49,43 +49,6 @@ $(function(){
         //Prüf Routine starten
 		initUI();
 	}
-	/*function initUI(){
-		var table = $("#techs_table");
-		var cell_flag = $("th",table).eq(-1);
-
-		var select_flag = $("<select>")
-		.append($("<option>").text("Auswählen").attr("value","0"))
-		.attr("id","insertflag_select")
-        .change(function(){
-            storageSet("flag", $("option:selected",select_flag).val());
-            console.log(storageGet("flag"));
-			if($("option:selected",select_flag).val()==0){
-				button_insert.attr("disabled","disabled")
-			}else{
-				button_insert.removeAttr("disabled")
-			}
-        });
-
-		for(var name in flaggenauswahl){
-			select_flag.append($("<option>").text(name).attr("value",flaggenauswahl[name]));
-		}
-		var button_insert	= $("<button>")
-		.text("Einfügen")
-        .click(function(){
-            insert_flags($("option:selected",select_flag).val());
-
-        });
-		if($("option:selected",select_flag).val()==0){
-			button_insert.attr("disabled","disabled")
-
-		}
-		var button_remove	= $("<button>")
-		.text("Andere Löschen")
-		.click(function(){
-
-        });
-		cell_flag.append(select_flag).append(button_insert).append(button_remove);
-	}*/
     function initUI(){
         //Erstellen des Einstellungs-Fensters
         var command_data_form   = $("#command-data-form");
