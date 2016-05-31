@@ -20,6 +20,8 @@
  var $ = typeof unsafeWindow != 'undefined' ? unsafeWindow.$ : window.$;
 
  var flaggenauswahl = {"Rohstoffproduktion":1,"Rekrutierungs-Geschwindigkeit":2,"Angriffsstärke":3,"Verteidigungsstärke":4,"Glück":5,"Einwohnerzahl":6,"Reduzierte Münzkosten":7,"Beutekapazität":8};
+ var flaggenauswahl_rev = {1:"Rohstoffproduktion",2:"Rekrutierungs-Geschwindigkeit",3:"Angriffsstärke",4:"Verteidigungsstärke",5:"Glück",6:"Einwohnerzahl",7:"Reduzierte Münzkosten",8:"Beutekapazität"};
+
  var current_flags;
 $(function(){
 
@@ -42,7 +44,12 @@ $(function(){
     }
 	storageSet("flag",storageGet("flag",0));
     storageSet("asc_desc",storageGet("asc_desc","asc"));
+    storageSet("order",storageGet("order",JSON.stringify({0:{"flag":1}})));
+    //storageSet("order",JSON.stringify({0:{"flag":1}}));
+    console.log(storageGet("order"))
     glstorageSet("groups",glstorageGet("groups",JSON.stringify({0:"alle"})));
+
+    var order = JSON.parse(storageGet("order"));
 
     var mode 	= $(".selected",$(".modemenu"));
 	if($("a",mode).eq(0).text().indexOf("Forschung")!=-1){
@@ -163,12 +170,12 @@ $(function(){
         var button_add_order  = $("<button>")
         .text("Auftrag übertragen")
         .click(function(){
-            var order = {};
-            order.flag      = $("option:selected",select_flag).val();
-            order.ascdesc   = $("option:selected",select_asc_desc).val();
-            order.bound     = input_flag_lvl_border.val();
-            order.group     = $("option:selected",select_group).val();
-            addOrder(order);
+            var new_order = {};
+            new_order.flag      = $("option:selected",select_flag).val();
+            new_order.ascdesc   = $("option:selected",select_asc_desc).val();
+            new_order.bound     = input_flag_lvl_border.val();
+            new_order.group     = $("option:selected",select_group).val();
+            addOrder(new_order);
         });
 		if($("option:selected",select_flag).val()==0){
 			button_insert.attr("disabled","disabled")
@@ -198,12 +205,13 @@ $(function(){
         .append($("<td>").append(select_asc_desc))
         .append($("<td>").append(input_flag_lvl_border))
         .append($("<td>").append(select_group))
-        .append($("<td>").append(button_insert));
+        .append($("<td>").append(button_insert).append(button_add_order));
 
 
         $("<table>")
         .appendTo($("#flag_run"))
-        .attr("id","flag_order_table");
+        .attr("id","flag_order_table")
+        .attr("class","vis overview-table");
 
         $("<tr>").appendTo($("#flag_order_table"))
         .append($("<th>").text("Flagge"))
@@ -212,12 +220,65 @@ $(function(){
         .append($("<th>").text("Gruppe"))
         .append($("<th>").text("Weitere Aktionen"));
 
-        function addOrder(order){
-            var table   = $("#flag_order_table");
-            var tr      = $("<tr>").appendTo(table);
-
-            $("<td>").appendTo(tr).append($("<span>").text(order.flag));
+        //add all existing orders to routine table!
+        order = JSON.parse(storageGet("order"));
+        for(var id in order){
+          if(id!=0){
+            //id=o ist nur die platzhalter id
+            addRoutineRow(order[id],id);
+          }
         }
+
+        function addOrder(new_order){
+            //Add order to storage
+            order = JSON.parse(storageGet("order"));
+            //getting next best/free Id
+            var new_id = 1;
+            for(var id in order){new_id = new_id>parseInt(id)?new_id:parseInt(id)+1;}
+            //adding new order to already existing ones
+            order[new_id] = new_order;
+            storageSet("order",JSON.stringify(order));
+            //add row to table!
+            addRoutineRow(new_order,new_id);
+        }
+        function addRoutineRow(new_order,id){
+            var table   = $("#flag_order_table");
+            var tr      = $("<tr>").appendTo(table).attr("id","order_"+id);
+            //count existing rows, assign attribute class:row_a or row_b to color the rows
+            var rows = $("tr",table);
+            if((rows.length%=2)==0){
+              tr.attr("class","row_a");
+            }else{
+              tr.attr("class","row_b");
+            }
+            //Inhalte
+            $("<td>").appendTo(tr).append($("<span>").text(""+flaggenauswahl_rev[new_order.flag]));
+            $("<td>").appendTo(tr).append($("<span>").text(""+new_order.ascdesc));
+            $("<td>").appendTo(tr).append($("<span>").text(""+new_order.bound));
+            $("<td>").appendTo(tr).append($("<span>").text(""+new_order.group));
+
+            //action-buttons: move up/down, delete
+            var td_action = $("<td>").appendTo(tr);
+            $("<button>")
+            .appendTo(td_action)
+            .text("up")
+            .click(function(){
+              move_up(id);
+            });
+            $("<button>")
+            .appendTo(td_action)
+            .text("down")
+            .click(function(){
+              move_down(id);
+            });
+            $("<button>")
+            .appendTo(td_action)
+            .text("delete")
+            .click(function(){
+              delete_order(id);
+            });
+        }
+
 
 
 
@@ -230,6 +291,17 @@ $(function(){
             .appendTo($("#flag_select_table"));
         }
     }
+    function move_up(id){
+      var table = $("#flag_select_table");
+      var row = $("tr#"+id,table);
+    }
+    function move_down(id){
+
+    }
+    function delete_order(id){
+
+    }
+    function refresh_order_ids
     function getGroup(){
         var groups = {};
         villageDock.open(event);
